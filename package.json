@@ -1,0 +1,65 @@
+{
+  "name": "forma-li",
+  "version": "1.0.4",
+  "description": "Collection of useful utility functions for JavaScript/TypeScript",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./arrays": {
+      "import": "./dist/arrays/index.mjs",
+      "require": "./dist/arrays/index.js",
+      "types": "./dist/arrays/index.d.ts"
+    },
+    "./strings": {
+      "import": "./dist/strings/index.mjs",
+      "require": "./dist/strings/index.js",
+      "types": "./dist/strings/index.d.ts"
+    },
+    "./objects": {
+      "import": "./dist/objects/index.mjs",
+      "require": "./dist/objects/index.js",
+      "types": "./dist/objects/index.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation/index.mjs",
+      "require": "./dist/validation/index.js",
+      "types": "./dist/validation/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsup": "8.0.0",
+    "typescript": "^5.4.5"
+  },
+  "keywords": [
+    "utils",
+    "helpers",
+    "functions",
+    "typescript"
+  ],
+  "author": "Mohammad Felfelani",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mfelfelani72/next-forma-li"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
+  }
+}
