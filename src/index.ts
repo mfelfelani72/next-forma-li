@@ -23,4 +23,11 @@ export { isValidEmail, isValidPhone, isValidUrl } from "./validation";
 // ============================================
 // Helpers
 // ============================================
-export { cn, sleep, debounce, throttle } from "./helpers";
+export {
+  cn,
+  sleep,
+  debounce,
+  throttle,
+  detectComponentsResponsive,
+  detectDeviceFromUA,
+} from "./helpers";

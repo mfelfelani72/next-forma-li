@@ -11,3 +11,5 @@ export { cn } from './cn';
 export { sleep } from './sleep';
 export { debounce } from './debounce';
 export { throttle } from './throttle';
+export { detectComponentsResponsive } from './detectComponentResponsive';
+export { detectDeviceFromUA } from './detectDeviceFromUA';
