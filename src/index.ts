@@ -8,7 +8,7 @@ export { chunk, unique, groupBy } from "./libraries/arrays";
 // ============================================
 // Strings
 // ============================================
-export { capitalize, slugify, truncate } from "./libraries/strings";
+export { capitalize, slugify, truncate, abbreviate, getInitial } from "./libraries/strings";
 
 // ============================================
 // Objects
@@ -30,6 +30,7 @@ export {
   throttle,
   detectComponentsResponsive,
   detectDeviceFromUA,
+  imageLoader,
   ALL_LANGUAGES,
   setupLanguages,
   getLanguages,
@@ -39,6 +40,12 @@ export {
   getAllLanguages,
   type Lang,
   type LanguageInfo,
+  isBrowser,
+  setCookie,
+  getCookie,
+  getCookieServer,
+  getCookieAppLang,
+  getCookieAppTheme,
 } from "./libraries/helpers";
 
 // ============================================
@@ -50,5 +57,20 @@ export type { Dictionary } from "./hooks";
 // ============================================
 // Stores
 // ============================================
-export { useLangStore, initializeLang } from './stores';
-export type { LangState } from './stores';
+export { useLangStore, initializeLang } from "./stores";
+export type { LangState } from "./stores";
+
+// ============================================
+// Numbers
+// ============================================
+export {
+  formatNumber,
+  formatNumberCompact,
+  randomInt,
+  randomFloat,
+  randomBoolean,
+  randomItem,
+  randomString,
+  randomHex,
+  randomId,
+} from "./libraries/numbers";

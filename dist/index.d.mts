@@ -1,4 +1,5 @@
 import { ComponentType } from 'react';
+import { ImageLoaderProps } from 'next/image';
 import * as zustand from 'zustand';
 
 declare function chunk<T>(array: T[], size: number): T[][];
@@ -12,6 +13,15 @@ declare function capitalize(str: string): string;
 declare function slugify(str: string): string;
 
 declare function truncate(str: string, length: number, suffix?: string): string;
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-11-02 06:07:10
+ * @Description: Smart text abbreviation and initial extraction
+ */
+declare function abbreviate(input: unknown, threshold?: number, maxFallback?: number): string;
+declare function getInitial(input: string): string;
 
 declare function pick<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K>;
 
@@ -56,6 +66,18 @@ declare function detectComponentsResponsive(deviceType: string | undefined, Mobi
  * @Description: Detect device type from User-Agent string
  */
 declare const detectDeviceFromUA: (userAgent: string) => "mobile" | "ipad" | "desktop";
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-11-02 06:07:10
+ * @Description: Custom image loader for Next.js with configurable basePath
+ */
+
+type NextImageLoaderOptions = {
+    basePath?: string;
+};
+declare const imageLoader: ({ src, width, quality }: ImageLoaderProps, options?: NextImageLoaderOptions) => string;
 
 declare const ALL_LANGUAGES: {
     readonly en: {
@@ -567,6 +589,26 @@ declare function getAllLanguages(): ({
     code: string;
 })[];
 
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-06 15:14:10
+ * @Description: Cookie utilities for client and server
+ */
+declare const isBrowser: () => boolean;
+declare const setCookie: (name: string, value: string, options?: {
+    minutes?: number;
+    days?: number;
+    secure?: boolean;
+}) => void;
+declare const getCookie: (name: string) => string | null;
+declare const getCookieServer: (name: string) => Promise<string | null>;
+declare const getCookieAppLang: (cookieStore: any) => Promise<{
+    lang: string;
+    dir: string;
+}>;
+declare const getCookieAppTheme: (cookieStore: any) => Promise<"light" | "dark">;
+
 type Dictionary = Record<string, any>;
 declare function setGetDictionary(fn: (lang: string) => Dictionary): void;
 declare function useTranslation(): {
@@ -595,4 +637,35 @@ interface LangState {
 declare const useLangStore: zustand.UseBoundStore<zustand.StoreApi<LangState>>;
 declare const initializeLang: (langFromUrl?: string) => Promise<void>;
 
-export { ALL_LANGUAGES, type Dictionary, type Lang, type LangState, type LanguageInfo, capitalize, chunk, cn, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, getAllLanguages, getLanguage, getLanguageCodes, getLanguages, groupBy, hasLanguage, initializeLang, isValidEmail, isValidPhone, isValidUrl, omit, pick, setGetDictionary, setupLanguages, sleep, slugify, throttle, truncate, unique, useLangStore, useTranslation };
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-06 15:14:10
+ * @Description: Format number with thousand separators and decimal precision
+ */
+declare function formatNumber(number: number | string, char?: string, precision?: number | null): string;
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-11-02 06:07:10
+ * @Description: Format number with locale support and abbreviation (K, M, B)
+ */
+
+declare function formatNumberCompact(num: number | string, lang: Lang, format?: "abbreviate" | "full"): string;
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-06 15:14:10
+ * @Description: Random number utilities
+ */
+declare function randomInt(min: number, max: number): number;
+declare function randomFloat(min: number, max: number, precision?: number): number;
+declare function randomBoolean(): boolean;
+declare function randomItem<T>(items: T[]): T;
+declare function randomString(length?: number): string;
+declare function randomHex(length?: number): string;
+declare function randomId(): string;
+
+export { ALL_LANGUAGES, type Dictionary, type Lang, type LangState, type LanguageInfo, abbreviate, capitalize, chunk, cn, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, sleep, slugify, throttle, truncate, unique, useLangStore, useTranslation };
