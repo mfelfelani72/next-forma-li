@@ -26,7 +26,7 @@ declare function throttle<T extends (...args: any[]) => any>(func: T, limit: num
  * @Description: Detect device type from cookies and return appropriate component
  */
 
-declare function detectComponentsResponsive(MobileComponent: ComponentType<any>, IpadComponent: ComponentType<any>, DesktopComponent: ComponentType<any>): Promise<ComponentType<any> | string>;
+declare function detectComponentsResponsive(deviceType: string | undefined, MobileComponent: ComponentType<any>, IpadComponent: ComponentType<any>, DesktopComponent: ComponentType<any>): ComponentType<any> | string;
 
 /**
  * @Author: Mohammad Felfelani

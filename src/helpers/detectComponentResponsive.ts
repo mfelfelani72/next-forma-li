@@ -5,24 +5,24 @@
  * @Description: Detect device type from cookies and return appropriate component
  */
 
-import { cookies } from "next/headers";
 import { type ComponentType } from "react";
 
-export async function detectComponentsResponsive(
+export function detectComponentsResponsive(
+  deviceType: string | undefined,
   MobileComponent: ComponentType<any>,
   IpadComponent: ComponentType<any>,
   DesktopComponent: ComponentType<any>
-): Promise<ComponentType<any> | string> {
-  const cookieStore = await cookies();
-  const deviceType = cookieStore.get("device-type")?.value;
-
+): ComponentType<any> | string {
   switch (deviceType) {
     case "mobile":
       return MobileComponent;
+
     case "ipad":
       return IpadComponent;
+
     case "desktop":
       return DesktopComponent;
+
     default:
       return "Unknown";
   }
