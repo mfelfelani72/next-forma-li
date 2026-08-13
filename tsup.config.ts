@@ -15,4 +15,5 @@ export default defineConfig({
   clean: true,
   target: 'es2020',
   platform: 'browser',
+  external: ['react', 'react-dom', 'next', 'swr'],
 });

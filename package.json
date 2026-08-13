@@ -1,6 +1,6 @@
 {
   "name": "forma-li",
-  "version": "1.0.12",
+  "version": "1.0.17",
   "description": "Collection of useful utility functions for JavaScript/TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -41,6 +41,26 @@
     "dev": "tsup --watch",
     "prepublishOnly": "npm run build"
   },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "next": ">=13.0.0",
+    "swr": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "swr": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^20.19.43",
     "@types/react": "^19.2.18",
@@ -50,6 +70,12 @@
     "react-dom": "^19.2.8",
     "tsup": "8.0.0",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "axios": "^1.19.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.14"
   },
   "keywords": [
     "utils",
@@ -62,10 +88,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/mfelfelani72/next-forma-li"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^3.6.0",
-    "zustand": "^5.0.14"
   }
 }

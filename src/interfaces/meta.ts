@@ -23,6 +23,11 @@ export interface BaseMeta {
 
 export interface PageMeta extends BaseMeta {
   canonicalUrl?: string;
+  robots?: {
+    index: boolean;
+    follow: boolean;
+    archive?: boolean;
+  };
 }
 
 export type OpenGraphMeta = {

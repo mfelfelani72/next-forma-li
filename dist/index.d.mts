@@ -1,6 +1,8 @@
 import { ComponentType } from 'react';
 import { ImageLoaderProps } from 'next/image';
+import { Metadata } from 'next';
 import * as zustand from 'zustand';
+import * as swr from 'swr';
 
 declare function chunk<T>(array: T[], size: number): T[][];
 
@@ -609,6 +611,209 @@ declare const getCookieAppLang: (cookieStore: any) => Promise<{
 }>;
 declare const getCookieAppTheme: (cookieStore: any) => Promise<"light" | "dark">;
 
+interface BaseMeta {
+    title: string;
+    description: string;
+    keywords?: string[];
+    publisher?: string;
+    twitter?: TwitterMeta;
+    openGraph?: OpenGraphMeta;
+    robots?: {
+        index?: boolean;
+        follow?: boolean;
+        archive?: boolean;
+    };
+}
+interface PageMeta extends BaseMeta {
+    canonicalUrl?: string;
+    robots?: {
+        index: boolean;
+        follow: boolean;
+        archive?: boolean;
+    };
+}
+type OpenGraphMeta = {
+    title: string;
+    description: string;
+    url?: string;
+    locale?: string;
+    siteName?: string;
+    type?: string;
+    images?: string;
+};
+type TwitterMeta = {
+    card?: string;
+    title?: string;
+    description?: string;
+    images?: string;
+    site?: string;
+};
+interface ContentData {
+    title: string;
+    description: string;
+    image: string;
+    datePublished: string;
+    dateModified: string;
+    author?: string;
+    provider?: string;
+    originalSourceUrl?: string;
+    newsKeywords?: string[];
+    postCount?: number;
+    pageType?: string;
+    robots?: {
+        index?: boolean;
+        follow?: boolean;
+        archive?: boolean;
+    };
+    ogType?: string;
+    twitterSite?: string;
+}
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-08 15:28:13
+ * @Description: Unified metadata generator for static and dynamic pages
+ */
+
+declare function setupMetadata(config?: {
+    baseUrl?: string;
+    siteName?: string;
+    locales?: string[];
+    twitterSite?: string;
+    licenseName?: string;
+    frontUrl?: string;
+    isProduction?: boolean;
+}, getDictionary?: (lang: string) => Promise<any>): void;
+declare function getPageConfig(pageType?: string): {
+    readonly ogType: "article";
+    readonly schemaType: "NewsArticle";
+} | {
+    readonly ogType: "article";
+    readonly schemaType: "Article";
+} | {
+    readonly ogType: "article";
+    readonly schemaType: "BlogPosting";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "CollectionPage";
+} | {
+    readonly ogType: "profile";
+    readonly schemaType: "Person";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "Product";
+} | {
+    readonly ogType: "video.other";
+    readonly schemaType: "VideoObject";
+} | {
+    readonly ogType: "music.podcast";
+    readonly schemaType: "PodcastEpisode";
+} | {
+    readonly ogType: "profile";
+    readonly schemaType: "ProfilePage";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "AboutPage";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "ContactPage";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "WebPage";
+} | {
+    readonly ogType: "website";
+    readonly schemaType: "LandingPage";
+} | {
+    ogType: "article";
+    schemaType: string;
+};
+declare function generateCanonicalUrl(lang: string, path?: string): string;
+declare function generateAlternateLanguages(path?: string): Record<string, string>;
+declare function generatePageTitle(pageTitle: string, baseTitle: string): string;
+declare function combineKeywords(baseKeywords?: string[], pageKeywords?: string[]): string[];
+declare function buildMetadataFromContent(data: ContentData, lang: string, address?: string): Metadata;
+declare function generatePageMetadata(lang?: string, pageKey?: string, customMeta?: Partial<PageMeta>): Promise<Metadata>;
+declare function generateWebsiteSchema(lang: string): {
+    "@context": string;
+    "@type": string;
+    name: string;
+    url: string;
+    inLanguage: string;
+    potentialAction: {
+        "@type": string;
+        target: string;
+        "query-input": string;
+    };
+};
+declare function generateOrganizationSchema(lang: string): {
+    "@context": string;
+    "@type": string;
+    name: string;
+    url: string;
+    logo: string;
+    inLanguage: string;
+    sameAs: string[];
+};
+declare function generateArticleSchema(lang: string, article: {
+    title: string;
+    description: string;
+    image: string;
+    datePublished: string;
+    dateModified: string;
+    authorName: string;
+    authorUrl?: string;
+    originalSourceUrl?: string;
+}): {
+    citation?: {
+        "@type": string;
+        url: string;
+    } | undefined;
+    isBasedOn?: {
+        "@type": string;
+        url: string;
+    } | undefined;
+    "@context": string;
+    "@type": string;
+    headline: string;
+    description: string;
+    image: string;
+    datePublished: string;
+    dateModified: string;
+    author: {
+        url?: string | undefined;
+        "@type": string;
+        name: string;
+    };
+    publisher: {
+        "@type": string;
+        name: string;
+        logo: {
+            "@type": string;
+            url: string;
+        };
+    };
+    inLanguage: string;
+};
+declare function generateBreadcrumbSchema(items: {
+    name: string;
+    url: string;
+}[]): {
+    "@context": string;
+    "@type": string;
+    itemListElement: {
+        "@type": string;
+        position: number;
+        name: string;
+        item: string;
+    }[];
+};
+type Params$1 = {
+    lang?: string;
+    slug?: string | Record<string, any> | string[];
+};
+declare function createMetadata(params: Params$1, source: string, slugIndicator?: number, location?: string, externalData?: ContentData | null): Promise<any>;
+
 type Dictionary = Record<string, any>;
 declare function setGetDictionary(fn: (lang: string) => Dictionary): void;
 declare function useTranslation(): {
@@ -668,4 +873,43 @@ declare function randomString(length?: number): string;
 declare function randomHex(length?: number): string;
 declare function randomId(): string;
 
-export { ALL_LANGUAGES, type Dictionary, type Lang, type LangState, type LanguageInfo, abbreviate, capitalize, chunk, cn, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, sleep, slugify, throttle, truncate, unique, useLangStore, useTranslation };
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Team:
+ * @Date: 2025-10-14 09:23:34
+ * @Description:
+ */
+interface ConnectParams<T = any> {
+    method?: "get" | "post";
+    endPoint: string;
+    body?: T;
+    headers?: any;
+    route?: string;
+}
+declare const cns: <T = any>({ method, endPoint, body, headers, route, }: ConnectParams<T>) => Promise<T | undefined>;
+
+interface Params<T> {
+    endPoint: string;
+    body?: T;
+    route?: string;
+}
+interface Config extends RTCConfiguration {
+    manual?: boolean;
+}
+declare const usePostFetch: <T = any>(params: Params<any>, config?: Config) => {
+    data: T | undefined;
+    error: any;
+    isLoading: boolean;
+    mutate: swr.KeyedMutator<T>;
+    fetcher: (overrideBody?: any) => Promise<any>;
+    invalidateCache: () => Promise<void>;
+    cacheStats: {
+        hits: number;
+        misses: number;
+        hitRate: string;
+        backgroundRefresh: number;
+    };
+};
+
+export { ALL_LANGUAGES, type Dictionary, type Lang, type LangState, type LanguageInfo, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useLangStore, usePostFetch, useTranslation };
