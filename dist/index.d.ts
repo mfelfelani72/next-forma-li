@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import { ComponentType, ReactNode } from 'react';
 import { ImageLoaderProps } from 'next/image';
 import { Metadata } from 'next';
 import * as zustand from 'zustand';
@@ -611,6 +611,14 @@ declare const getCookieAppLang: (cookieStore: any) => Promise<{
 }>;
 declare const getCookieAppTheme: (cookieStore: any) => Promise<"light" | "dark">;
 
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Team:
+ * @Date: 2025-10-12 08:39:25
+ * @Description:
+ */
+type ValidOgType = 'article' | 'website' | 'profile' | 'book' | 'music.song' | 'music.album' | 'music.playlist' | 'music.radio_station' | 'video.movie' | 'video.episode' | 'video.tv_show' | 'video.other';
 interface BaseMeta {
     title: string;
     description: string;
@@ -814,8 +822,8 @@ type Params$1 = {
 };
 declare function createMetadata(params: Params$1, source: string, slugIndicator?: number, location?: string, externalData?: ContentData | null): Promise<any>;
 
-type Dictionary = Record<string, any>;
-declare function setGetDictionary(fn: (lang: string) => Dictionary): void;
+type Dictionary$1 = Record<string, any>;
+declare function setGetDictionary(fn: (lang: string) => Dictionary$1): void;
 declare function useTranslation(): {
     t: (key: string, fallback?: string) => string;
     lang: "en" | "fa" | "ar" | "zh" | "fr" | "ru" | "es" | "de" | "it" | "pt" | "hi" | "ja" | "ko" | "tr" | "ur" | "id" | "ms" | "pl" | "uk" | "ro" | "nl" | "sv" | "no" | "da" | "fi" | "el" | "hu" | "cs" | "he" | "th" | "vi";
@@ -829,6 +837,13 @@ declare function useTranslation(): {
  * @Description:
  */
 
+type Dictionary = Record<string, string | {
+    title: string;
+    description: string;
+    keywords?: string[];
+    openGraph?: OpenGraphMeta;
+    twitter?: TwitterMeta;
+}>;
 interface LangState {
     lang: Lang;
     dir: "ltr" | "rtl";
@@ -912,4 +927,68 @@ declare const usePostFetch: <T = any>(params: Params<any>, config?: Config) => {
     };
 };
 
-export { ALL_LANGUAGES, type Dictionary, type Lang, type LangState, type LanguageInfo, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useLangStore, usePostFetch, useTranslation };
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Team:
+ * @Date: 2025-10-12 15:00:49
+ * @Description:
+ */
+
+interface LangLayoutProps {
+    children: ReactNode;
+    params: Promise<{
+        lang: string;
+    }>;
+}
+interface LangWrapperProps {
+    langFromUrl: Lang;
+    dictionary: Dictionary;
+    children: ReactNode;
+}
+interface Image {
+    src?: string | any;
+    alt?: string;
+    width?: number;
+    height?: number;
+}
+interface VerticalNewsBox {
+    title?: string;
+    link?: string;
+    image?: Image | string;
+}
+interface AdvertiseBoxType {
+    title?: string;
+    content?: string;
+    sponsored?: string;
+    link?: string;
+    image?: Image | string;
+}
+type FrontBackPair = {
+    front: (props: any) => ReactNode;
+    back: (props: any) => ReactNode;
+};
+type SonnerType = "basic" | "success" | "error" | "warning" | "info" | 'loading';
+type SonnerPosition = "bottom-left" | "bottom-right" | "bottom-center" | "top-left" | "top-right" | "top-center";
+interface SonnerItem {
+    id: string;
+    title: ReactNode;
+    action: ReactNode | null;
+    type: SonnerType;
+    duration: number;
+    position: SonnerPosition;
+    createdAt?: any;
+    isPaused?: boolean;
+    remainingDuration?: any;
+}
+interface OpenSonnerParams {
+    title: ReactNode;
+    action?: ReactNode;
+    type?: SonnerType;
+    duration?: number;
+    position?: SonnerPosition;
+    allowDuplicate?: boolean;
+    onDismiss?: (...args: any[]) => void;
+}
+
+export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useLangStore, usePostFetch, useTranslation };
