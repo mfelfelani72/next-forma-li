@@ -1,6 +1,6 @@
 {
   "name": "forma-li",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Collection of useful utility functions for JavaScript/TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

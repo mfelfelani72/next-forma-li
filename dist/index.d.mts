@@ -1,4 +1,4 @@
-import { ComponentType, ReactNode } from 'react';
+import React, { ComponentType, ReactNode } from 'react';
 import { ImageLoaderProps } from 'next/image';
 import { Metadata } from 'next';
 import * as zustand from 'zustand';
@@ -822,6 +822,30 @@ type Params$1 = {
 };
 declare function createMetadata(params: Params$1, source: string, slugIndicator?: number, location?: string, externalData?: ContentData | null): Promise<any>;
 
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-18 09:36:46
+ * @Description: Core translation utilities
+ */
+type Dictionary$1 = Record<string, any>;
+declare function setGetDictionary(fn: (lang: string) => Dictionary$1): void;
+declare function getGlobalDictionary(): ((lang: string) => Dictionary$1) | null;
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Date: 2025-10-18 09:36:46
+ * @Description: Translation utilities for SSR
+ */
+
+declare function createTranslator(lang: string): {
+    t: (key: string, fallback?: string) => string;
+    lang: string;
+};
+declare function simpleTrans(i18nKey: string, values: Record<string, string> | undefined, t: (key: string) => string): string;
+declare function trans(i18nKey: string, values: Record<string, string>, t: (key: string) => string, ...elements: React.ReactElement[]): React.ReactNode;
+
 type DeviceType = "mobile" | "ipad" | "desktop";
 type Orientation = "landscape" | "portrait";
 interface DeviceInfo {
@@ -836,8 +860,6 @@ interface DeviceInfo {
 }
 declare function useDevice(): DeviceInfo;
 
-type Dictionary$1 = Record<string, any>;
-declare function setGetDictionary(fn: (lang: string) => Dictionary$1): void;
 declare function useTranslation(): {
     t: (key: string, fallback?: string) => string;
     lang: "en" | "fa" | "ar" | "zh" | "fr" | "ru" | "es" | "de" | "it" | "pt" | "hi" | "ja" | "ko" | "tr" | "ur" | "id" | "ms" | "pl" | "uk" | "ro" | "nl" | "sv" | "no" | "da" | "fi" | "el" | "hu" | "cs" | "he" | "th" | "vi";
@@ -1005,4 +1027,4 @@ interface OpenSonnerParams {
     onDismiss?: (...args: any[]) => void;
 }
 
-export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useDevice, useLangStore, usePostFetch, useTranslation };
+export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, createTranslator, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getGlobalDictionary, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, simpleTrans, sleep, slugify, throttle, trans, truncate, unique, useDevice, useLangStore, usePostFetch, useTranslation };

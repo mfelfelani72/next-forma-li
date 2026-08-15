@@ -39,6 +39,7 @@ __export(src_exports, {
   cns: () => cns,
   combineKeywords: () => combineKeywords,
   createMetadata: () => createMetadata,
+  createTranslator: () => createTranslator,
   debounce: () => debounce,
   deepClone: () => deepClone,
   detectComponentsResponsive: () => detectComponentsResponsive,
@@ -58,6 +59,7 @@ __export(src_exports, {
   getCookieAppLang: () => getCookieAppLang,
   getCookieAppTheme: () => getCookieAppTheme,
   getCookieServer: () => getCookieServer,
+  getGlobalDictionary: () => getGlobalDictionary,
   getInitial: () => getInitial,
   getLanguage: () => getLanguage,
   getLanguageCodes: () => getLanguageCodes,
@@ -84,9 +86,11 @@ __export(src_exports, {
   setGetDictionary: () => setGetDictionary,
   setupLanguages: () => setupLanguages,
   setupMetadata: () => setupMetadata,
+  simpleTrans: () => simpleTrans,
   sleep: () => sleep,
   slugify: () => slugify,
   throttle: () => throttle,
+  trans: () => trans,
   truncate: () => truncate,
   unique: () => unique,
   useDevice: () => useDevice,
@@ -1092,28 +1096,105 @@ async function createMetadata(params, source, slugIndicator = -1, location, exte
   }
 }
 
+// src/libraries/helpers/translationCore.ts
+var globalGetDictionary2 = null;
+function setGetDictionary(fn) {
+  globalGetDictionary2 = fn;
+}
+function getGlobalDictionary() {
+  return globalGetDictionary2;
+}
+
+// src/libraries/helpers/translation.ts
+var import_react = __toESM(require("react"));
+function createTranslator(lang) {
+  const globalGetDictionary3 = getGlobalDictionary();
+  if (!globalGetDictionary3) {
+    throw new Error(
+      "getDictionary not configured. Please call setGetDictionary() in your app."
+    );
+  }
+  const translations = globalGetDictionary3(lang);
+  function t(key, fallback) {
+    if (!translations) {
+      console.warn("Translations not loaded for language:", lang);
+      return fallback ?? key;
+    }
+    const keys = key?.split(".");
+    let value = translations;
+    for (const k of keys) {
+      if (value && typeof value === "object" && k in value) {
+        value = value[k];
+      } else {
+        return fallback ?? key;
+      }
+    }
+    return typeof value === "string" ? value : fallback ?? key;
+  }
+  return { t, lang };
+}
+function simpleTrans(i18nKey, values = {}, t) {
+  let text = t(i18nKey);
+  for (const [key, value] of Object.entries(values)) {
+    text = text.replace(new RegExp(`{{${key}}}`, "g"), value);
+  }
+  return text;
+}
+function trans(i18nKey, values, t, ...elements) {
+  let text = t(i18nKey);
+  for (const [key, value] of Object.entries(values)) {
+    text = text.replace(new RegExp(`{{${key}}}`, "g"), value);
+  }
+  const parts = text.split(/(<\d+>.*?<\/\d+>)/g);
+  const result = [];
+  parts.forEach((part, index) => {
+    const tagMatch = part.match(/^<(\d+)>(.*?)<\/\d+>$/);
+    if (tagMatch) {
+      const elementIndex = Number(tagMatch[1]);
+      const content = tagMatch[2];
+      const element = elements[elementIndex];
+      if (import_react.default.isValidElement(element)) {
+        result.push(
+          import_react.default.cloneElement(
+            element,
+            {
+              key: index
+            },
+            content
+          )
+        );
+      } else {
+        result.push(content);
+      }
+    } else if (part) {
+      result.push(import_react.default.createElement(import_react.default.Fragment, { key: index }, part));
+    }
+  });
+  return result;
+}
+
 // src/hooks/useDevice.ts
-var import_react = require("react");
+var import_react2 = require("react");
 function useDevice() {
-  const [screenWidth, setScreenWidth] = (0, import_react.useState)(() => {
+  const [screenWidth, setScreenWidth] = (0, import_react2.useState)(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth;
     }
     return 1024;
   });
-  const [screenHeight, setScreenHeight] = (0, import_react.useState)(() => {
+  const [screenHeight, setScreenHeight] = (0, import_react2.useState)(() => {
     if (typeof window !== "undefined") {
       return window.innerHeight;
     }
     return 768;
   });
-  const [isTouchDevice, setIsTouchDevice] = (0, import_react.useState)(() => {
+  const [isTouchDevice, setIsTouchDevice] = (0, import_react2.useState)(() => {
     if (typeof window !== "undefined") {
       return "ontouchstart" in window || navigator.maxTouchPoints > 0;
     }
     return false;
   });
-  (0, import_react.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
       setScreenHeight(window.innerHeight);
@@ -1121,7 +1202,7 @@ function useDevice() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const deviceInfo = (0, import_react.useMemo)(() => {
+  const deviceInfo = (0, import_react2.useMemo)(() => {
     const orientation = screenWidth > screenHeight ? "landscape" : "portrait";
     let type;
     if (screenWidth < 540) {
@@ -1222,18 +1303,15 @@ var initializeLang = async (langFromUrl) => {
 };
 
 // src/hooks/useTranslation.ts
-var globalGetDictionary2 = null;
-function setGetDictionary(fn) {
-  globalGetDictionary2 = fn;
-}
 function useTranslation() {
   const { lang } = useLangStore();
-  if (!globalGetDictionary2) {
+  const globalGetDictionary3 = getGlobalDictionary();
+  if (!globalGetDictionary3) {
     throw new Error(
       "getDictionary not configured. Please call setGetDictionary() in your app."
     );
   }
-  const translations = globalGetDictionary2(lang);
+  const translations = globalGetDictionary3(lang);
   function t(key, fallback) {
     if (!translations) {
       console.warn("Translations not loaded for language:", lang);
@@ -1329,7 +1407,7 @@ function randomId() {
 }
 
 // src/libraries/api/usePostFetch.ts
-var import_react2 = require("react");
+var import_react3 = require("react");
 var swr = __toESM(require("swr"));
 var useSWR = swr.default || swr;
 var CacheAnalytics = class {
@@ -1496,10 +1574,10 @@ var SmartCache = class {
 var cache = new SmartCache();
 var makeKey = (p) => `${p.endPoint}|${p.route || ""}|${JSON.stringify(p.body || {})}`;
 var usePostFetch = (params, config) => {
-  const key = (0, import_react2.useMemo)(() => makeKey(params), [params]);
-  const [loading, setLoading] = (0, import_react2.useState)(false);
-  const revalidateLock = (0, import_react2.useRef)(false);
-  const mutateRef = (0, import_react2.useRef)(null);
+  const key = (0, import_react3.useMemo)(() => makeKey(params), [params]);
+  const [loading, setLoading] = (0, import_react3.useState)(false);
+  const revalidateLock = (0, import_react3.useRef)(false);
+  const mutateRef = (0, import_react3.useRef)(null);
   const fetchAndCache = async (p = params) => {
     const res = await cns({
       method: "post",

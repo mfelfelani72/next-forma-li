@@ -65,13 +65,17 @@ export {
   generatePageTitle,
   combineKeywords,
   getPageConfig,
+  getGlobalDictionary,
+  createTranslator,
+  simpleTrans,
+  trans,
+  type Dictionary,
 } from "./libraries/helpers";
 
 // ============================================
 // Hooks
 // ============================================
 export { useTranslation, setGetDictionary, useDevice } from "./hooks";
-export type { Dictionary } from "./hooks";
 
 // ============================================
 // Stores

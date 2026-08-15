@@ -994,6 +994,83 @@ async function createMetadata(params, source, slugIndicator = -1, location, exte
   }
 }
 
+// src/libraries/helpers/translationCore.ts
+var globalGetDictionary2 = null;
+function setGetDictionary(fn) {
+  globalGetDictionary2 = fn;
+}
+function getGlobalDictionary() {
+  return globalGetDictionary2;
+}
+
+// src/libraries/helpers/translation.ts
+import React from "react";
+function createTranslator(lang) {
+  const globalGetDictionary3 = getGlobalDictionary();
+  if (!globalGetDictionary3) {
+    throw new Error(
+      "getDictionary not configured. Please call setGetDictionary() in your app."
+    );
+  }
+  const translations = globalGetDictionary3(lang);
+  function t(key, fallback) {
+    if (!translations) {
+      console.warn("Translations not loaded for language:", lang);
+      return fallback ?? key;
+    }
+    const keys = key?.split(".");
+    let value = translations;
+    for (const k of keys) {
+      if (value && typeof value === "object" && k in value) {
+        value = value[k];
+      } else {
+        return fallback ?? key;
+      }
+    }
+    return typeof value === "string" ? value : fallback ?? key;
+  }
+  return { t, lang };
+}
+function simpleTrans(i18nKey, values = {}, t) {
+  let text = t(i18nKey);
+  for (const [key, value] of Object.entries(values)) {
+    text = text.replace(new RegExp(`{{${key}}}`, "g"), value);
+  }
+  return text;
+}
+function trans(i18nKey, values, t, ...elements) {
+  let text = t(i18nKey);
+  for (const [key, value] of Object.entries(values)) {
+    text = text.replace(new RegExp(`{{${key}}}`, "g"), value);
+  }
+  const parts = text.split(/(<\d+>.*?<\/\d+>)/g);
+  const result = [];
+  parts.forEach((part, index) => {
+    const tagMatch = part.match(/^<(\d+)>(.*?)<\/\d+>$/);
+    if (tagMatch) {
+      const elementIndex = Number(tagMatch[1]);
+      const content = tagMatch[2];
+      const element = elements[elementIndex];
+      if (React.isValidElement(element)) {
+        result.push(
+          React.cloneElement(
+            element,
+            {
+              key: index
+            },
+            content
+          )
+        );
+      } else {
+        result.push(content);
+      }
+    } else if (part) {
+      result.push(React.createElement(React.Fragment, { key: index }, part));
+    }
+  });
+  return result;
+}
+
 // src/hooks/useDevice.ts
 import { useState, useEffect, useMemo } from "react";
 function useDevice() {
@@ -1124,18 +1201,15 @@ var initializeLang = async (langFromUrl) => {
 };
 
 // src/hooks/useTranslation.ts
-var globalGetDictionary2 = null;
-function setGetDictionary(fn) {
-  globalGetDictionary2 = fn;
-}
 function useTranslation() {
   const { lang } = useLangStore();
-  if (!globalGetDictionary2) {
+  const globalGetDictionary3 = getGlobalDictionary();
+  if (!globalGetDictionary3) {
     throw new Error(
       "getDictionary not configured. Please call setGetDictionary() in your app."
     );
   }
-  const translations = globalGetDictionary2(lang);
+  const translations = globalGetDictionary3(lang);
   function t(key, fallback) {
     if (!translations) {
       console.warn("Translations not loaded for language:", lang);
@@ -1465,6 +1539,7 @@ export {
   cns,
   combineKeywords,
   createMetadata,
+  createTranslator,
   debounce,
   deepClone,
   detectComponentsResponsive,
@@ -1484,6 +1559,7 @@ export {
   getCookieAppLang,
   getCookieAppTheme,
   getCookieServer,
+  getGlobalDictionary,
   getInitial,
   getLanguage,
   getLanguageCodes,
@@ -1510,9 +1586,11 @@ export {
   setGetDictionary,
   setupLanguages,
   setupMetadata,
+  simpleTrans,
   sleep,
   slugify,
   throttle,
+  trans,
   truncate,
   unique,
   useDevice,

@@ -7,17 +7,14 @@
 "use client";
 
 import { useLangStore } from "../stores/LangStore";
+import { getGlobalDictionary, setGetDictionary, type Dictionary } from "../libraries/helpers/translationCore";
 
-export type Dictionary = Record<string, any>;
-
-let globalGetDictionary: ((lang: string) => Dictionary) | null = null;
-
-export function setGetDictionary(fn: (lang: string) => Dictionary) {
-  globalGetDictionary = fn;
-}
+export { setGetDictionary };
 
 export function useTranslation() {
   const { lang } = useLangStore();
+
+  const globalGetDictionary = getGlobalDictionary();
 
   if (!globalGetDictionary) {
     throw new Error(

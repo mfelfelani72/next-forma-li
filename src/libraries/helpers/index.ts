@@ -64,5 +64,12 @@ export {
   buildMetadataFromContent,
   generatePageTitle,
   combineKeywords,
-  getPageConfig
-} from './metadata';
+  getPageConfig,
+} from "./metadata";
+
+export {
+  setGetDictionary,
+  getGlobalDictionary,
+  type Dictionary,
+} from "./translationCore";
+export { createTranslator, simpleTrans, trans } from "./translation";
