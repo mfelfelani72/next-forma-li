@@ -994,6 +994,59 @@ async function createMetadata(params, source, slugIndicator = -1, location, exte
   }
 }
 
+// src/hooks/useDevice.ts
+import { useState, useEffect, useMemo } from "react";
+function useDevice() {
+  const [screenWidth, setScreenWidth] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth;
+    }
+    return 1024;
+  });
+  const [screenHeight, setScreenHeight] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerHeight;
+    }
+    return 768;
+  });
+  const [isTouchDevice, setIsTouchDevice] = useState(() => {
+    if (typeof window !== "undefined") {
+      return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    }
+    return false;
+  });
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      setScreenHeight(window.innerHeight);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const deviceInfo = useMemo(() => {
+    const orientation = screenWidth > screenHeight ? "landscape" : "portrait";
+    let type;
+    if (screenWidth < 540) {
+      type = "mobile";
+    } else if (screenWidth >= 540 && screenWidth < 992) {
+      type = "ipad";
+    } else {
+      type = "desktop";
+    }
+    return {
+      type,
+      orientation,
+      screenWidth,
+      screenHeight,
+      isTouchDevice,
+      isMobile: type === "mobile",
+      isIpad: type === "ipad",
+      isDesktop: type === "desktop"
+    };
+  }, [screenWidth, screenHeight, isTouchDevice]);
+  return deviceInfo;
+}
+
 // src/stores/LangStore.ts
 import { create } from "zustand";
 var useLangStore = create()((set, get) => ({
@@ -1178,7 +1231,7 @@ function randomId() {
 }
 
 // src/libraries/api/usePostFetch.ts
-import { useMemo, useState, useRef } from "react";
+import { useMemo as useMemo2, useState as useState2, useRef } from "react";
 import * as swr from "swr";
 var useSWR = swr.default || swr;
 var CacheAnalytics = class {
@@ -1345,8 +1398,8 @@ var SmartCache = class {
 var cache = new SmartCache();
 var makeKey = (p) => `${p.endPoint}|${p.route || ""}|${JSON.stringify(p.body || {})}`;
 var usePostFetch = (params, config) => {
-  const key = useMemo(() => makeKey(params), [params]);
-  const [loading, setLoading] = useState(false);
+  const key = useMemo2(() => makeKey(params), [params]);
+  const [loading, setLoading] = useState2(false);
   const revalidateLock = useRef(false);
   const mutateRef = useRef(null);
   const fetchAndCache = async (p = params) => {
@@ -1462,6 +1515,7 @@ export {
   throttle,
   truncate,
   unique,
+  useDevice,
   useLangStore,
   usePostFetch,
   useTranslation

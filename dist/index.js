@@ -89,6 +89,7 @@ __export(src_exports, {
   throttle: () => throttle,
   truncate: () => truncate,
   unique: () => unique,
+  useDevice: () => useDevice,
   useLangStore: () => useLangStore,
   usePostFetch: () => usePostFetch,
   useTranslation: () => useTranslation
@@ -1091,6 +1092,59 @@ async function createMetadata(params, source, slugIndicator = -1, location, exte
   }
 }
 
+// src/hooks/useDevice.ts
+var import_react = require("react");
+function useDevice() {
+  const [screenWidth, setScreenWidth] = (0, import_react.useState)(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth;
+    }
+    return 1024;
+  });
+  const [screenHeight, setScreenHeight] = (0, import_react.useState)(() => {
+    if (typeof window !== "undefined") {
+      return window.innerHeight;
+    }
+    return 768;
+  });
+  const [isTouchDevice, setIsTouchDevice] = (0, import_react.useState)(() => {
+    if (typeof window !== "undefined") {
+      return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    }
+    return false;
+  });
+  (0, import_react.useEffect)(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      setScreenHeight(window.innerHeight);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const deviceInfo = (0, import_react.useMemo)(() => {
+    const orientation = screenWidth > screenHeight ? "landscape" : "portrait";
+    let type;
+    if (screenWidth < 540) {
+      type = "mobile";
+    } else if (screenWidth >= 540 && screenWidth < 992) {
+      type = "ipad";
+    } else {
+      type = "desktop";
+    }
+    return {
+      type,
+      orientation,
+      screenWidth,
+      screenHeight,
+      isTouchDevice,
+      isMobile: type === "mobile",
+      isIpad: type === "ipad",
+      isDesktop: type === "desktop"
+    };
+  }, [screenWidth, screenHeight, isTouchDevice]);
+  return deviceInfo;
+}
+
 // src/stores/LangStore.ts
 var import_zustand = require("zustand");
 var useLangStore = (0, import_zustand.create)()((set, get) => ({
@@ -1275,7 +1329,7 @@ function randomId() {
 }
 
 // src/libraries/api/usePostFetch.ts
-var import_react = require("react");
+var import_react2 = require("react");
 var swr = __toESM(require("swr"));
 var useSWR = swr.default || swr;
 var CacheAnalytics = class {
@@ -1442,10 +1496,10 @@ var SmartCache = class {
 var cache = new SmartCache();
 var makeKey = (p) => `${p.endPoint}|${p.route || ""}|${JSON.stringify(p.body || {})}`;
 var usePostFetch = (params, config) => {
-  const key = (0, import_react.useMemo)(() => makeKey(params), [params]);
-  const [loading, setLoading] = (0, import_react.useState)(false);
-  const revalidateLock = (0, import_react.useRef)(false);
-  const mutateRef = (0, import_react.useRef)(null);
+  const key = (0, import_react2.useMemo)(() => makeKey(params), [params]);
+  const [loading, setLoading] = (0, import_react2.useState)(false);
+  const revalidateLock = (0, import_react2.useRef)(false);
+  const mutateRef = (0, import_react2.useRef)(null);
   const fetchAndCache = async (p = params) => {
     const res = await cns({
       method: "post",

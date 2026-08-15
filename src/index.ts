@@ -70,7 +70,7 @@ export {
 // ============================================
 // Hooks
 // ============================================
-export { useTranslation, setGetDictionary } from "./hooks";
+export { useTranslation, setGetDictionary, useDevice } from "./hooks";
 export type { Dictionary } from "./hooks";
 
 // ============================================

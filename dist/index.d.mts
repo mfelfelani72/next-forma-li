@@ -822,6 +822,20 @@ type Params$1 = {
 };
 declare function createMetadata(params: Params$1, source: string, slugIndicator?: number, location?: string, externalData?: ContentData | null): Promise<any>;
 
+type DeviceType = "mobile" | "ipad" | "desktop";
+type Orientation = "landscape" | "portrait";
+interface DeviceInfo {
+    type: DeviceType;
+    orientation: Orientation;
+    screenWidth: number;
+    screenHeight: number;
+    isTouchDevice: boolean;
+    isMobile: boolean;
+    isIpad: boolean;
+    isDesktop: boolean;
+}
+declare function useDevice(): DeviceInfo;
+
 type Dictionary$1 = Record<string, any>;
 declare function setGetDictionary(fn: (lang: string) => Dictionary$1): void;
 declare function useTranslation(): {
@@ -991,4 +1005,4 @@ interface OpenSonnerParams {
     onDismiss?: (...args: any[]) => void;
 }
 
-export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useLangStore, usePostFetch, useTranslation };
+export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, sleep, slugify, throttle, truncate, unique, useDevice, useLangStore, usePostFetch, useTranslation };
