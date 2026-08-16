@@ -1135,7 +1135,7 @@ var useLangStore = create()((set, get) => ({
     const langConfig = ALL_LANGUAGES[newLang];
     const dir = langConfig?.dir || "ltr";
     try {
-      const response = await fetch("/api/set-lang", {
+      const response = await fetch("/api/lang", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1174,7 +1174,7 @@ var useLangStore = create()((set, get) => ({
       finalDir = ALL_LANGUAGES[finalLang].dir;
     } else {
       try {
-        const response = await fetch("/api/get-lang");
+        const response = await fetch("/api/lang");
         if (response.ok) {
           const data = await response.json();
           if (data.lang && data.lang in ALL_LANGUAGES) {
