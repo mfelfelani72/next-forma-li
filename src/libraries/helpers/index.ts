@@ -45,10 +45,6 @@ export {
 } from "./cookies";
 
 // ============================================
-// Meta
-// ============================================
-
-// ============================================
 // Metadata
 // ============================================
 export {
@@ -73,3 +69,5 @@ export {
   type Dictionary,
 } from "./translationCore";
 export { createTranslator, simpleTrans, trans } from "./translation";
+
+export { updateUrlBlog, updateUrlTag } from "./urlHelper";

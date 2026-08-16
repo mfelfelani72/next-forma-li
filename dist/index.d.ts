@@ -846,6 +846,29 @@ declare function createTranslator(lang: string): {
 declare function simpleTrans(i18nKey: string, values: Record<string, string> | undefined, t: (key: string) => string): string;
 declare function trans(i18nKey: string, values: Record<string, string>, t: (key: string) => string, ...elements: React.ReactElement[]): React.ReactNode;
 
+interface UrlBlogData {
+    lang: string;
+    location: string;
+    id?: string | number;
+    correctSlugs: (string | undefined)[];
+    urlSlugs: (string | undefined)[];
+}
+interface UrlTagData {
+    lang: string;
+    location: string;
+    id?: string;
+    correctSlug?: string;
+    urlSlug?: string;
+}
+interface PropsBlog {
+    data: UrlBlogData;
+}
+interface PropsTag {
+    data: UrlTagData;
+}
+declare const updateUrlBlog: ({ data }: PropsBlog) => string;
+declare const updateUrlTag: ({ data }: PropsTag) => string;
+
 type DeviceType = "mobile" | "ipad" | "desktop";
 type Orientation = "landscape" | "portrait";
 interface DeviceInfo {
@@ -923,6 +946,18 @@ declare function randomItem<T>(items: T[]): T;
 declare function randomString(length?: number): string;
 declare function randomHex(length?: number): string;
 declare function randomId(): string;
+
+/**
+ * @Author: Mohammad Felfelani
+ * @Email: mfelfelani72@gmail.com
+ * @Team:
+ * @Date: 2025-12-13 07:21:26
+ * @Description:
+ */
+type DateHelperKind = "regular" | "chart" | "difference";
+type DateHelperFormat = "full" | "date" | "time";
+type DateHelperType = "AD-date" | "SH-date" | "LH-date";
+declare function dateHelper(stampDate: number, kind?: "regular" | "chart" | "difference", second?: boolean, format?: "full" | "date" | "time", type?: "AD-date" | "SH-date" | "LH-date"): string;
 
 /**
  * @Author: Mohammad Felfelani
@@ -1027,4 +1062,4 @@ interface OpenSonnerParams {
     onDismiss?: (...args: any[]) => void;
 }
 
-export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, createTranslator, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getGlobalDictionary, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, simpleTrans, sleep, slugify, throttle, trans, truncate, unique, useDevice, useLangStore, usePostFetch, useTranslation };
+export { ALL_LANGUAGES, type AdvertiseBoxType, type BaseMeta, type ContentData, type DateHelperFormat, type DateHelperKind, type DateHelperType, type Dictionary$1 as Dictionary, type FrontBackPair, type Image, type Lang, type LangLayoutProps, type LangState, type LangWrapperProps, type LanguageInfo, type OpenGraphMeta, type OpenSonnerParams, type PageMeta, type SonnerItem, type SonnerPosition, type SonnerType, type TwitterMeta, type ValidOgType, type VerticalNewsBox, abbreviate, buildMetadataFromContent, capitalize, chunk, cn, cns, combineKeywords, createMetadata, createTranslator, dateHelper, debounce, deepClone, detectComponentsResponsive, detectDeviceFromUA, formatNumber, formatNumberCompact, generateAlternateLanguages, generateArticleSchema, generateBreadcrumbSchema, generateCanonicalUrl, generateOrganizationSchema, generatePageMetadata, generatePageTitle, generateWebsiteSchema, getAllLanguages, getCookie, getCookieAppLang, getCookieAppTheme, getCookieServer, getGlobalDictionary, getInitial, getLanguage, getLanguageCodes, getLanguages, getPageConfig, groupBy, hasLanguage, imageLoader, initializeLang, isBrowser, isValidEmail, isValidPhone, isValidUrl, omit, pick, randomBoolean, randomFloat, randomHex, randomId, randomInt, randomItem, randomString, setCookie, setGetDictionary, setupLanguages, setupMetadata, simpleTrans, sleep, slugify, throttle, trans, truncate, unique, updateUrlBlog, updateUrlTag, useDevice, useLangStore, usePostFetch, useTranslation };

@@ -1071,6 +1071,47 @@ function trans(i18nKey, values, t, ...elements) {
   return result;
 }
 
+// src/libraries/helpers/urlHelper.ts
+import { redirect } from "next/navigation";
+var safeDecodeURIComponent = (str) => {
+  if (typeof str !== "string")
+    return void 0;
+  try {
+    return decodeURIComponent(str);
+  } catch (e) {
+    console.error("Error decoding component:", str, e);
+    return str;
+  }
+};
+var updateUrlBlog = ({ data }) => {
+  const incomingSlugsDecoded = data.urlSlugs.map(safeDecodeURIComponent);
+  if (!data.id) {
+    console.error(`Error fetching article details for ID: ${data.id}`);
+    redirect(`/${data.lang}/${data.location}`);
+  }
+  const correctSlugs = data.correctSlugs;
+  const slugsAreDifferent = incomingSlugsDecoded.length !== correctSlugs.length || incomingSlugsDecoded.some((slug, idx) => slug !== correctSlugs[idx]);
+  if (slugsAreDifferent) {
+    const slugPath = correctSlugs.join("/");
+    const newPath = `/${data.lang}/${data.location}/${data.id}/${slugPath}`;
+    redirect(newPath);
+  }
+  return "";
+};
+var updateUrlTag = ({ data }) => {
+  const incomingSlugDecoded = safeDecodeURIComponent(data.urlSlug);
+  let correctSlugCleaned = data.correctSlug?.replace(/^#/, "");
+  if (!data.id) {
+    redirect(`/${data.lang}/news/`);
+  }
+  if (incomingSlugDecoded !== correctSlugCleaned && correctSlugCleaned) {
+    const slugForUrl = encodeURIComponent(correctSlugCleaned);
+    const newPath = `/${data.lang}/news/${data.location}/${data.id}/${slugForUrl}`;
+    redirect(newPath);
+  }
+  return "";
+};
+
 // src/hooks/useDevice.ts
 import { useState, useEffect, useMemo } from "react";
 function useDevice() {
@@ -1302,6 +1343,177 @@ function randomHex(length = 8) {
 }
 function randomId() {
   return `${Date.now()}_${randomString(6)}`;
+}
+
+// src/libraries/dates/dateHelper.ts
+function dateHelper(stampDate, kind = "regular", second = false, format = "full", type = "AD-date") {
+  const { t } = useTranslation();
+  let location;
+  let result = "";
+  if (type == "AD-date")
+    location = "en-US";
+  else if (type == "SH-date")
+    location = "fa-IR";
+  else if (type == "LH-date")
+    location = "ar-SA";
+  else
+    location = "en-US";
+  const date = new Date(stampDate * 1e3);
+  if (kind == "regular" && format == "full") {
+    if (type == "AD-date") {
+      result = date.toLocaleString(location, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    } else if (type == "SH-date") {
+      const dateString = date.toLocaleString(location, {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        calendar: "persian"
+      });
+      const timeString = date.toLocaleString(location, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      result = `${dateString} , ${timeString}`;
+    } else if (type == "LH-date") {
+      const dateString = date.toLocaleString(location, {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        calendar: "islamic"
+      });
+      const timeString = date.toLocaleString(location, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      result = `${dateString} , ${timeString}`;
+    }
+  } else if (kind == "regular" && format == "date") {
+    if (type == "AD-date") {
+      result = date.toLocaleString(location, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+      });
+    } else if (type == "SH-date") {
+      result = date.toLocaleString(location, {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        calendar: "persian"
+      });
+    } else if (type == "LH-date") {
+      result = date.toLocaleString(location, {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        calendar: "islamic"
+      });
+    }
+  } else if (kind == "regular" && format == "time") {
+    if (type == "AD-date") {
+      result = date.toLocaleString(location, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    } else {
+      result = date.toLocaleString(location, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+    }
+  } else if (kind == "chart") {
+    result = date.toLocaleString(location, {
+      month: "short",
+      day: "2-digit"
+    });
+  } else if (kind == "difference") {
+    const currentDate = /* @__PURE__ */ new Date();
+    const diffInMs = currentDate.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1e3 * 60 * 60 * 24));
+    const diffInHours = Math.floor(
+      diffInMs % (1e3 * 60 * 60 * 24) / (1e3 * 60 * 60)
+    );
+    const diffInMinutes = Math.floor(
+      diffInMs % (1e3 * 60 * 60) / (1e3 * 60)
+    );
+    const diffInSeconds = Math.floor(diffInMs % (1e3 * 60) / 1e3);
+    if (diffInHours > 11) {
+      if (type == "AD-date") {
+        result = date.toLocaleString(location, {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+      } else if (type == "SH-date") {
+        const dateString = date.toLocaleString(location, {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          calendar: "persian"
+        });
+        const timeString = date.toLocaleString(location, {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
+        result = `${dateString} , ${timeString}`;
+      } else if (type == "LH-date") {
+        const dateString = date.toLocaleString(location, {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          calendar: "islamic"
+        });
+        const timeString = date.toLocaleString(location, {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
+        result = `${dateString} , ${timeString}`;
+      }
+    } else {
+      const units = [
+        { value: diffInDays, singular: "day_singular", plural: "day_plural" },
+        {
+          value: diffInHours,
+          singular: "hour_singular",
+          plural: "hour_plural"
+        },
+        {
+          value: diffInMinutes,
+          singular: "minute_singular",
+          plural: "minute_plural"
+        },
+        {
+          value: second ? diffInSeconds : 0,
+          singular: "second_singular",
+          plural: "second_plural"
+        }
+      ];
+      const nonZeroUnits = units.filter((u) => u.value > 0).slice(0, 2);
+      let stringTime = nonZeroUnits.map((u) => `${u.value} ${t(u.value < 2 ? u.singular : u.plural)}`).join(" ");
+      if (nonZeroUnits.length === 0) {
+        result = t("exactly_now");
+      } else {
+        result = `${stringTime} ${t("ago")}`;
+      }
+    }
+  }
+  return result;
 }
 
 // src/libraries/api/usePostFetch.ts
@@ -1540,6 +1752,7 @@ export {
   combineKeywords,
   createMetadata,
   createTranslator,
+  dateHelper,
   debounce,
   deepClone,
   detectComponentsResponsive,
@@ -1593,6 +1806,8 @@ export {
   trans,
   truncate,
   unique,
+  updateUrlBlog,
+  updateUrlTag,
   useDevice,
   useLangStore,
   usePostFetch,
