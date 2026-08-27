@@ -967,13 +967,13 @@ declare function dateHelper(stampDate: number, kind?: "regular" | "chart" | "dif
  * @Description:
  */
 interface ConnectParams<T = any> {
-    method?: "get" | "post";
+    method?: "get" | "post" | "put" | "delete" | "patch";
     endPoint: string;
     body?: T;
     headers?: any;
     route?: string;
 }
-declare const cns: <T = any>({ method, endPoint, body, headers, route, }: ConnectParams<T>) => Promise<T | undefined>;
+declare const cns: <T = any>({ method, endPoint, body, headers, route, }: ConnectParams<T>) => Promise<T>;
 
 interface Params<T> {
     endPoint: string;

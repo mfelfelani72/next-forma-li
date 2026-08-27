@@ -721,20 +721,34 @@ var cns = async ({
   route
 }) => {
   try {
-    let config;
-    if (method === "post") {
-      const res = await axiosClient_default.post(endPoint, body, config);
-      return res.data;
-    } else if (method === "get") {
-      const res = await axiosClient_default.get(endPoint, config);
-      return res.data;
+    const config = { headers };
+    let response;
+    switch (method) {
+      case "get":
+        response = await axiosClient_default.get(endPoint, config);
+        break;
+      case "post":
+        response = await axiosClient_default.post(endPoint, body, config);
+        break;
+      case "put":
+        response = await axiosClient_default.put(endPoint, body, config);
+        break;
+      case "patch":
+        response = await axiosClient_default.patch(endPoint, body, config);
+        break;
+      case "delete":
+        response = await axiosClient_default.delete(endPoint, config);
+        break;
+      default:
+        throw new Error(`Unsupported method: ${method}`);
     }
-    throw new Error("Unsupported method: " + method);
+    return response.data;
   } catch (error) {
     console.error({
       message: `Connection to server failed, route: ${route || endPoint}`,
       error
     });
+    throw error;
   }
 };
 

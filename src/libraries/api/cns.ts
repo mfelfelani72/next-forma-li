@@ -10,7 +10,7 @@ import axiosClient from "./axiosClient";
 
 // Interfaces
 interface ConnectParams<T = any> {
-  method?: "get" | "post";
+  method?: "get" | "post" | "put" | "delete" | "patch";
   endPoint: string;
   body?: T;
   headers?: any;
@@ -25,20 +25,36 @@ export const cns = async <T = any>({
   route,
 }: ConnectParams<T>) => {
   try {
-    let config;
+    const config = { headers };
 
-    if (method === "post") {
-      const res = await axiosClient.post<T>(endPoint, body, config);
-      return res.data;
-    } else if (method === "get") {
-      const res = await axiosClient.get<T>(endPoint, config);
-      return res.data;
+    let response;
+
+    switch (method) {
+      case "get":
+        response = await axiosClient.get<T>(endPoint, config);
+        break;
+      case "post":
+        response = await axiosClient.post<T>(endPoint, body, config);
+        break;
+      case "put":
+        response = await axiosClient.put<T>(endPoint, body, config);
+        break;
+      case "patch":
+        response = await axiosClient.patch<T>(endPoint, body, config);
+        break;
+      case "delete":
+        response = await axiosClient.delete<T>(endPoint, config);
+        break;
+      default:
+        throw new Error(`Unsupported method: ${method}`);
     }
-    throw new Error("Unsupported method: " + method);
+
+    return response.data;
   } catch (error: any) {
     console.error({
       message: `Connection to server failed, route: ${route || endPoint}`,
       error,
     });
+    throw error;
   }
 };
