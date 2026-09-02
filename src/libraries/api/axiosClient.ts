@@ -44,11 +44,15 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(async (config) => {
   try {
-    let token = process.env.NEXT_PUBLIC_AUTHORIZATION;
+    let token =
+      process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== ""
+        ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE +
+          " " +
+          process.env.NEXT_PUBLIC_AUTHORIZATION
+        : process.env.NEXT_PUBLIC_AUTHORIZATION;
     // CSR
     if (!isSSR) {
       const cookie = getCookie("app_key");
-
       if (cookie) {
         const appKey = JSON.parse(decodeURIComponent(cookie));
         token = appKey?.tk ?? token;
@@ -69,7 +73,10 @@ axiosClient.interceptors.request.use(async (config) => {
     }
 
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization =
+        process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== ""
+          ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE + " " + token
+          : token;
     }
   } catch (error) {
     console.error("Axios token attach error:", error);

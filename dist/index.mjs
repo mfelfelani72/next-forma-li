@@ -580,7 +580,7 @@ var axiosClient = axios.create({
 });
 axiosClient.interceptors.request.use(async (config) => {
   try {
-    let token = process.env.NEXT_PUBLIC_AUTHORIZATION;
+    let token = process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== "" ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE + " " + process.env.NEXT_PUBLIC_AUTHORIZATION : process.env.NEXT_PUBLIC_AUTHORIZATION;
     if (!isSSR) {
       const cookie = getCookie("app_key");
       if (cookie) {
@@ -598,7 +598,7 @@ axiosClient.interceptors.request.use(async (config) => {
       }
     }
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization = process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== "" ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE + " " + token : token;
     }
   } catch (error) {
     console.error("Axios token attach error:", error);
@@ -612,11 +612,10 @@ var cns = async ({
   method = "post",
   endPoint,
   body,
-  headers,
   route
 }) => {
   try {
-    const config = { headers };
+    let config;
     let response;
     switch (method) {
       case "get":

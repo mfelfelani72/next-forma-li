@@ -21,11 +21,10 @@ export const cns = async <T = any>({
   method = "post",
   endPoint,
   body,
-  headers,
   route,
 }: ConnectParams<T>) => {
   try {
-    const config = { headers };
+    let config;
 
     let response;
 

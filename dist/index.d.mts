@@ -973,7 +973,7 @@ interface ConnectParams<T = any> {
     headers?: any;
     route?: string;
 }
-declare const cns: <T = any>({ method, endPoint, body, headers, route, }: ConnectParams<T>) => Promise<T>;
+declare const cns: <T = any>({ method, endPoint, body, route, }: ConnectParams<T>) => Promise<T>;
 
 interface Params<T> {
     endPoint: string;
