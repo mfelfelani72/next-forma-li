@@ -975,7 +975,7 @@ interface ConnectParams<T = any> {
 }
 declare const cns: <T = any>({ method, endPoint, body, route, }: ConnectParams<T>) => Promise<T>;
 
-interface Params<T> {
+interface Params<T = any> {
     endPoint: string;
     body?: T;
     route?: string;
@@ -989,6 +989,7 @@ declare const usePostFetch: <T = any>(params: Params<any>, config?: Config) => {
     isLoading: boolean;
     mutate: swr.KeyedMutator<T>;
     fetcher: (overrideBody?: any) => Promise<any>;
+    revalidate: (p?: Params<any>) => Promise<void>;
     invalidateCache: () => Promise<void>;
     cacheStats: {
         hits: number;

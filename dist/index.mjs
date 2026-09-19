@@ -558,6 +558,10 @@ var getCookieAppTheme = async (cookieStore) => {
   }
   return theme;
 };
+var getCookieAppLangServer = async () => {
+  const cookieStore = await cookies();
+  return getCookieAppLang(cookieStore);
+};
 
 // src/libraries/api/axiosClient.ts
 import axios from "axios";
@@ -573,19 +577,30 @@ var axiosClient = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json; charset=utf-8"
   },
-  // withCredentials: isSSR && isProduction,
-  // withXSRFToken: isSSR && isProduction,
   withCredentials: isProduction,
   withXSRFToken: isProduction
 });
 axiosClient.interceptors.request.use(async (config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   try {
     let token = process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== "" ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE + " " + process.env.NEXT_PUBLIC_AUTHORIZATION : process.env.NEXT_PUBLIC_AUTHORIZATION;
+    let locale = "en";
     if (!isSSR) {
       const cookie = getCookie("app_key");
       if (cookie) {
         const appKey = JSON.parse(decodeURIComponent(cookie));
         token = appKey?.tk ?? token;
+      }
+      const appLangCookie = getCookie("app_lang");
+      if (appLangCookie) {
+        try {
+          const appLang = JSON.parse(decodeURIComponent(appLangCookie));
+          locale = appLang?.state?.lang || "en";
+        } catch (error) {
+          console.error("Failed to parse app_lang cookie:", error);
+        }
       }
     } else {
       try {
@@ -596,12 +611,18 @@ axiosClient.interceptors.request.use(async (config) => {
         }
       } catch {
       }
+      try {
+        const appLang = await getCookieAppLangServer();
+        locale = appLang.lang || "en";
+      } catch {
+      }
     }
+    config.headers["Accept-Language"] = locale;
     if (token) {
       config.headers.Authorization = process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== "" ? process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE + " " + token : token;
     }
   } catch (error) {
-    console.error("Axios token attach error:", error);
+    console.error("Axios request interceptor error:", error);
   }
   return config;
 });
@@ -1565,14 +1586,17 @@ var IDBStore = class {
     this.db = null;
   }
   async init() {
-    if (this.db)
+    if (this.db) {
       return;
+    }
     this.db = await new Promise((resolve, reject) => {
       const req = indexedDB.open(this.name, 1);
-      req.onupgradeneeded = (e) => {
-        const db = e.target.result;
+      req.onupgradeneeded = (event) => {
+        const db = event.target.result;
         if (!db.objectStoreNames.contains("cache")) {
-          db.createObjectStore("cache", { keyPath: "key" });
+          db.createObjectStore("cache", {
+            keyPath: "key"
+          });
         }
       };
       req.onsuccess = () => resolve(req.result);
@@ -1585,10 +1609,11 @@ var IDBStore = class {
       const tx = this.db.transaction("cache", "readonly");
       const req = tx.objectStore("cache").get(key);
       req.onsuccess = () => {
-        const v = req.result;
-        if (!v || Date.now() > v.expiry)
+        const value = req.result;
+        if (!value || Date.now() > value.expiry) {
           return resolve(null);
-        resolve(v.data);
+        }
+        resolve(value.data);
       };
       req.onerror = () => resolve(null);
     });
@@ -1643,7 +1668,6 @@ var SmartCache = class {
       this.warmup();
     }
   }
-  // Warmup: preload memory from IndexedDB on first load
   async warmup() {
     const tabKeys = await this.tabDB.getAllKeys();
     const refreshKeys = await this.refreshDB.getAllKeys();
@@ -1655,8 +1679,12 @@ var SmartCache = class {
           this.tabDB.get(key)
         ]);
         const data = refresh || tab;
-        if (data)
-          this.mem.set(key, { data, ts: Date.now() });
+        if (data) {
+          this.mem.set(key, {
+            data,
+            ts: Date.now()
+          });
+        }
       })
     );
   }
@@ -1672,7 +1700,10 @@ var SmartCache = class {
     ]);
     const data = refresh || tab;
     if (data) {
-      const obj = { data, ts: Date.now() };
+      const obj = {
+        data,
+        ts: Date.now()
+      };
       this.mem.set(key, obj);
       analytics.hit();
       return obj;
@@ -1681,39 +1712,101 @@ var SmartCache = class {
     return null;
   }
   async set(key, data) {
-    const obj = { data, ts: Date.now() };
+    const obj = {
+      data,
+      ts: Date.now()
+    };
     this.mem.set(key, obj);
     this.tabDB.set(key, data, 1 * 1);
     this.refreshDB.set(key, data, 1 * 1);
   }
   async invalidate() {
     this.mem.clear();
-    await Promise.all([this.tabDB.clear(), this.refreshDB.clear()]);
+    await Promise.all([
+      this.tabDB.clear(),
+      this.refreshDB.clear()
+    ]);
   }
   stats() {
     return analytics.stats();
   }
 };
 var cache = new SmartCache();
-var makeKey = (p) => `${p.endPoint}|${p.route || ""}|${JSON.stringify(p.body || {})}`;
+var isFormData = (value) => {
+  return typeof FormData !== "undefined" && value instanceof FormData;
+};
+var appendFormDataValue = (formData, key, value) => {
+  if (value === void 0 || value === null) {
+    return;
+  }
+  if (value instanceof Blob) {
+    formData.append(key, value);
+    return;
+  }
+  if (typeof value === "object") {
+    formData.append(key, JSON.stringify(value));
+    return;
+  }
+  formData.append(key, String(value));
+};
+var mergeBodies = (baseBody, overrideBody) => {
+  if (!isFormData(baseBody) && !isFormData(overrideBody)) {
+    return {
+      ...baseBody || {},
+      ...overrideBody || {}
+    };
+  }
+  const formData = new FormData();
+  if (isFormData(baseBody)) {
+    for (const [key, value] of baseBody.entries()) {
+      formData.append(key, value);
+    }
+  } else if (baseBody && typeof baseBody === "object") {
+    Object.entries(baseBody).forEach(([key, value]) => {
+      appendFormDataValue(formData, key, value);
+    });
+  }
+  if (isFormData(overrideBody)) {
+    for (const [key, value] of overrideBody.entries()) {
+      formData.append(key, value);
+    }
+  } else if (overrideBody && typeof overrideBody === "object") {
+    Object.entries(overrideBody).forEach(([key, value]) => {
+      appendFormDataValue(formData, key, value);
+    });
+  }
+  return formData;
+};
+var makeKey = (params) => {
+  if (isFormData(params.body)) {
+    return `${params.endPoint}|${params.route || ""}|form-data`;
+  }
+  return `${params.endPoint}|${params.route || ""}|${JSON.stringify(
+    params.body || {}
+  )}`;
+};
 var usePostFetch = (params, config) => {
   const key = useMemo2(() => makeKey(params), [params]);
   const [loading, setLoading] = useState2(false);
   const revalidateLock = useRef(false);
   const mutateRef = useRef(null);
   const fetchAndCache = async (p = params) => {
+    const responseBody = p.body;
     const res = await cns({
       method: "post",
       endPoint: p.endPoint,
-      body: p.body,
+      body: responseBody,
       route: p.route
     });
-    await cache.set(key, res);
+    if (!isFormData(responseBody)) {
+      await cache.set(key, res);
+    }
     return res;
   };
   const revalidate = async (p = params) => {
-    if (revalidateLock.current)
+    if (revalidateLock.current) {
       return;
+    }
     revalidateLock.current = true;
     try {
       analytics.background();
@@ -1724,19 +1817,28 @@ var usePostFetch = (params, config) => {
     }
   };
   const fetcher = async (overrideBody) => {
+    const finalBody = mergeBodies(
+      params.body,
+      overrideBody
+    );
     const finalParams = {
       ...params,
-      body: {
-        ...params.body,
-        ...overrideBody || {}
-      }
+      body: finalBody
     };
     setLoading(true);
-    const res = await fetchAndCache(finalParams);
-    setLoading(false);
-    return res;
+    try {
+      const res = await fetchAndCache(finalParams);
+      return res;
+    } finally {
+      setLoading(false);
+    }
   };
-  const { data, error, mutate, isValidating } = useSWR(key, fetcher, {
+  const {
+    data,
+    error,
+    mutate,
+    isValidating
+  } = useSWR(key, fetcher, {
     ...config,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -1750,6 +1852,7 @@ var usePostFetch = (params, config) => {
     isLoading: loading || isValidating,
     mutate,
     fetcher,
+    revalidate,
     invalidateCache: () => cache.invalidate(),
     cacheStats: cache.stats()
   };

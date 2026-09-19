@@ -10,7 +10,11 @@ import axios from "axios";
 
 // Functions
 
-import { getCookie, getCookieServer } from "../helpers/cookies";
+import {
+  getCookie,
+  getCookieAppLangServer,
+  getCookieServer,
+} from "../helpers/cookies";
 
 // Constants
 
@@ -36,13 +40,15 @@ const axiosClient = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json; charset=utf-8",
   },
-  // withCredentials: isSSR && isProduction,
-  // withXSRFToken: isSSR && isProduction,
   withCredentials: isProduction,
   withXSRFToken: isProduction,
 });
 
 axiosClient.interceptors.request.use(async (config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   try {
     let token =
       process.env.NEXT_PUBLIC_AUTHORIZATION_TYPE !== ""
@@ -50,16 +56,28 @@ axiosClient.interceptors.request.use(async (config) => {
           " " +
           process.env.NEXT_PUBLIC_AUTHORIZATION
         : process.env.NEXT_PUBLIC_AUTHORIZATION;
-    // CSR
+
+    let locale = "en";
+
     if (!isSSR) {
       const cookie = getCookie("app_key");
+
       if (cookie) {
         const appKey = JSON.parse(decodeURIComponent(cookie));
         token = appKey?.tk ?? token;
       }
-    }
-    // SSR
-    else {
+
+      const appLangCookie = getCookie("app_lang");
+
+      if (appLangCookie) {
+        try {
+          const appLang = JSON.parse(decodeURIComponent(appLangCookie));
+          locale = appLang?.state?.lang || "en";
+        } catch (error) {
+          console.error("Failed to parse app_lang cookie:", error);
+        }
+      }
+    } else {
       try {
         const cookieStore = await getCookieServer("app_key");
 
@@ -68,9 +86,18 @@ axiosClient.interceptors.request.use(async (config) => {
           token = appKey?.tk ?? token;
         }
       } catch {
-        // ignore if outside request scope
+        // Ignore when outside request scope.
+      }
+
+      try {
+        const appLang = await getCookieAppLangServer();
+        locale = appLang.lang || "en";
+      } catch {
+        // Ignore when outside request scope.
       }
     }
+
+    config.headers["Accept-Language"] = locale;
 
     if (token) {
       config.headers.Authorization =
@@ -79,7 +106,7 @@ axiosClient.interceptors.request.use(async (config) => {
           : token;
     }
   } catch (error) {
-    console.error("Axios token attach error:", error);
+    console.error("Axios request interceptor error:", error);
   }
 
   return config;
